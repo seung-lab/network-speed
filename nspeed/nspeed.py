@@ -13,26 +13,18 @@ from cloudfiles.lib import sip
 
 from .encoding import transcode_image
 
-# data source (3)
-# data destination (2)
-# chunk size (1)
-# number of processes (2)
-# compression (2)
-# upload/download (2)
-
 SOURCES = [
     "mem://synthetic_images",
     "file://./nspeed_test_images",
-    # "file:///Volumes/scratch/ws9/nspeed_test_images",
+    "file:///Volumes/scratch/ws9/nspeed_test_images",
 ]
 
 DESTINATIONS = [
-    # "matrix://....",
     "gs://seunglab/wms/speedtest/",
-    # "tigerdata://sseung-test1/",
+    "file://./nspeed_test_images_dest/",
 ]
 
-NUM_PROCESSES = [ 1  ]
+NUM_PROCESSES = [ 1 ]
 
 ENCODINGS = [ 'raw', 'jxl' ]
 
@@ -90,13 +82,14 @@ def worker(src, dest, encoding, paths):
         cfsrc.transfer_to(dest, paths=paths)
     else:
         files = cfsrc.get(paths)
-        cfdest.puts(( 
+        x = [
             transcode_image(
                 file["path"], file["content"], 
                 encoding, level=100, effort=1
             )
             for file in files 
-        ))
+        ]
+        cfdest.puts(x)
     elapsed = time.time() - s
     return elapsed
 
@@ -104,9 +97,12 @@ def _run_speed_test(src, dest, num_procs, encoding):
 
     fn = partial(worker, src, dest, encoding)
 
-    ext = encoding.lower() if encoding != "raw" else 'bmp'
-
     filenames = [ 
+        f"{i:03}.bmp" for i in range(NFILES) 
+    ]
+
+    ext = encoding.lower() if encoding != "raw" else 'bmp'
+    filenames_dest = [ 
         f"{i:03}.{ext}" for i in range(NFILES) 
     ]
 
@@ -118,19 +114,19 @@ def _run_speed_test(src, dest, num_procs, encoding):
             results = pool.map(fn, sip(filenames, 20))
         wall_clock_elapsed = time.time() - s
 
-    source_bytes = CloudFiles(src).size()
-    dest_bytes = CloudFiles(dest).size()
+    source_bytes = CloudFiles(src).size(filenames, return_sum=True)
+    dest_bytes = CloudFiles(dest).size(filenames_dest, return_sum=True)
 
     row = [
         src,
         dest,
         encoding,
-        num_procs,
+        f"{num_procs}",
         f"{source_bytes / 1e6:.2f}",
         f"{dest_bytes / 1e6:.2f}",
         f"{wall_clock_elapsed:.2f}",
-        f"{source_bytes / 1e6 / wall_clock_elapsed:.2}",
-        f"{source_bytes * 8 / 1e9 / wall_clock_elapsed}",
+        f"{source_bytes / 1e6 / wall_clock_elapsed:.2f}",
+        f"{source_bytes * 8 / 1e9 / wall_clock_elapsed:.2f}",
     ]
     print("\t".join(row))
 
