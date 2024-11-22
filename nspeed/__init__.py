@@ -1,0 +1,1 @@
+from .nspeed import run_speed_tests
