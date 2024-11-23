@@ -24,11 +24,11 @@ DESTINATIONS = [
     "file://./nspeed_test_images_dest/",
 ]
 
-NUM_PROCESSES = [ 1 ]
+NUM_PROCESSES = [ 8, 1 ]
 
 ENCODINGS = [ 'raw', 'jxl' ]
 
-NFILES = 100
+NFILES = 20 * max(NUM_PROCESSES)
 
 pid = os.getpid()
 
