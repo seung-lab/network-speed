@@ -48,7 +48,6 @@ def transcode_image(
   binary:bytes, 
   encoding:str, 
   level:Optional[int],
-  effort:Optional[int] = 1,
   **kwargs,
 ) -> bytes:
   basename, ext = os.path.splitext(filename)
