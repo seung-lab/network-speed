@@ -44,7 +44,7 @@ def print_headers():
         "src MB/sec (wall clock)",
         "src Gbps (wall clock)",
     ]
-    print("\t".join(attrs))
+    print("\t".join(attrs), flush=True)
 
 def setup_test_files():
     gppath = os.path.dirname(os.path.dirname(__file__))
@@ -70,7 +70,7 @@ def setup_test_files():
             for i, f in enumerate(files) 
         ])
         elapsed = time.time() - s
-        print(f"Initialized test images in {elapsed:.1f} seconds: {src}")
+        print(f"Initialized test images in {elapsed:.1f} seconds: {src}", flush=True)
 
 def worker(src, dest, encoding, paths):
     cfsrc = CloudFiles(src)
@@ -128,7 +128,7 @@ def _run_speed_test(src, dest, num_procs, encoding):
         f"{source_bytes / 1e6 / wall_clock_elapsed:.2f}",
         f"{source_bytes * 8 / 1e9 / wall_clock_elapsed:.2f}",
     ]
-    print("\t".join(row))
+    print("\t".join(row), flush=True)
 
 def run_speed_tests():
     setup_test_files()
