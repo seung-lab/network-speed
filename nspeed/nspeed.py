@@ -13,13 +13,13 @@ from cloudfiles.lib import sip
 
 from .encoding import transcode_image
 
-SOURCES = [
+DEFAULT_SOURCES = [
     "mem://synthetic_images",
     "file://./nspeed_test_images",
-    "file:///Volumes/scratch/ws9/nspeed_test_images",
+    # "file:///Volumes/scratch/ws9/nspeed_test_images",
 ]
 
-DESTINATIONS = [
+DEFAULT_DESTINATIONS = [
     "gs://seunglab/wms/speedtest/",
     "file://./nspeed_test_images_dest/",
 ]
@@ -46,7 +46,7 @@ def print_headers():
     ]
     print("\t".join(attrs), flush=True)
 
-def setup_test_files():
+def setup_test_files(sources = DEFAULT_SOURCES):
     gppath = os.path.dirname(os.path.dirname(__file__))
     cfsrc = CloudFiles(f"file:///{gppath}/example_images")
     fnames = [ 
@@ -62,7 +62,7 @@ def setup_test_files():
 
     files *= ((NFILES + 3) // 4)
 
-    for src in SOURCES:
+    for src in sources:
         s = time.time()
         cfdest = CloudFiles(src)
         cfdest.puts([
@@ -130,12 +130,17 @@ def _run_speed_test(src, dest, num_procs, encoding):
     ]
     print("\t".join(row), flush=True)
 
-def run_speed_tests():
+def run_speed_tests(
+    sources = DEFAULT_SOURCES, 
+    dests = DEFAULT_DESTINATIONS, 
+    ncpu = NUM_PROCESSES,
+    encodings = ENCODINGS,
+):
     setup_test_files()
     print_headers()
 
-    for num_procs in NUM_PROCESSES:
-        for src in SOURCES:
-            for dest in DESTINATIONS:
-                for encoding in ENCODINGS:
+    for num_procs in ncpu:
+        for src in sources:
+            for dest in dests:
+                for encoding in encodings:
                     _run_speed_test(src, dest, num_procs, encoding)
