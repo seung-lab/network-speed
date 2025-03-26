@@ -38,7 +38,7 @@ def print_headers():
         "destination",
         "encoding",
         "num_proc",
-        "source_MB"
+        "source_MB "
         "dest_MB",
         "seconds (wall clock)",
         "src MB/sec (wall clock)",
