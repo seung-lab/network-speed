@@ -57,7 +57,7 @@ def transcode_image(
   encoding = encoding.lower()
 
   if src_encoding == encoding:
-    return binary
+    return (filename, binary)
 
   elif src_encoding == "jpeg" and encoding in ["jpegxl", "jxl"] and level is None:
     return (basename + ".jxl", jpegxl_encode_jpeg(binary))
